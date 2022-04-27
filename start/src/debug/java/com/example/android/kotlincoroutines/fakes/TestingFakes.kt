@@ -44,9 +44,9 @@ class TitleDaoFake(initialTitle: String) : TitleDao {
      * This uses a channel instead of a list to allow multiple threads to call insertTitle and
      * synchronize the results with the test thread.
      */
-    private val insertedForNext = Channel<Title>(capacity = Channel.BUFFERED)
+    private val insertedForNext: Channel<Title> = Channel<Title>(capacity = Channel.BUFFERED)
 
-    override fun insertTitle(title: Title) {
+    override suspend fun insertTitle(title: Title) {
         insertedForNext.trySend(title)
         _titleLiveData.value = title
     }
@@ -92,7 +92,7 @@ class TitleDaoFake(initialTitle: String) : TitleDao {
  * Testing Fake implementation of MainNetwork
  */
 class MainNetworkFake(var result: String) : MainNetwork {
-    override fun fetchNextTitle() = MakeCompilerHappyForStarterCode() // TODO: replace with `result`
+    override suspend fun fetchNextTitle() = result // TODO: replace with `result`
 }
 
 /**
@@ -101,7 +101,7 @@ class MainNetworkFake(var result: String) : MainNetwork {
 class MainNetworkCompletableFake() : MainNetwork {
     private var completable = CompletableDeferred<String>()
 
-    override fun fetchNextTitle() = MakeCompilerHappyForStarterCode() // TODO: replace with `completable.await()`
+    override suspend fun fetchNextTitle() = completable.await() // TODO: replace with `completable.await()`
 
     fun sendCompletionToAllCurrentRequests(result: String) {
         completable.complete(result)
